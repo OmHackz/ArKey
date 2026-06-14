@@ -1,45 +1,66 @@
-<<<<<<< HEAD
-# ArKey
-=======
-# ArKey
+<p align="center">
+  <img src="./public/favicon.svg" width="84" height="84" alt="ArKey logo" />
+</p>
 
-ArKey is a secure recovery-code vault and 2FA authenticator built with Vite, Supabase Auth, Supabase Postgres, and client-side encryption. It includes a Chrome Manifest V3 plugin for quickly opening the app and starting authenticator setup from the current browser tab.
+<h1 align="center">ArKey</h1>
+
+<p align="center">
+  Secure recovery-code vault, encrypted TOTP authenticator, and Chrome plugin companion.
+</p>
+
+<p align="center">
+  <a href="https://arkey.pages.dev">
+    <img alt="Live demo" src="https://img.shields.io/badge/Live-arkey.pages.dev-000000?style=for-the-badge&logo=cloudflarepages&logoColor=white" />
+  </a>
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOmHackz%2FArKey&project-name=arkey&repository-name=ArKey&root-directory=ArKey&env=VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_ENCRYPTION_KEY&envDescription=Supabase%20project%20URL%2C%20anon%20key%2C%20and%20stable%20client-side%20encryption%20key&build-command=npm%20run%20build&output-directory=dist">
+    <img alt="Deploy with Vercel" src="https://img.shields.io/badge/Deploy%20with-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  <a href="https://github.com/OmHackz/ArKey.git">
+    <img alt="Clone repository" src="https://img.shields.io/badge/Clone-Repository-181717?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
+</p>
+
+<p align="center">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img alt="Supabase" src="https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3FCF8E?style=flat-square&logo=supabase&logoColor=white" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img alt="Chrome Extension" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/badge/License-Private-lightgrey?style=flat-square" />
+</p>
+
+---
+
+## Preview
+
+ArKey is a static Vite app that signs users in with Supabase Auth, encrypts sensitive data in the browser with Web Crypto, stores user-scoped rows behind Supabase RLS, and ships with a Chrome Manifest V3 plugin.
+
+| Area | What it does |
+| --- | --- |
+| Vault | Stores encrypted recovery codes |
+| Authenticator | Stores encrypted TOTP secrets and generates live 2FA codes |
+| Dashboard | Shows vault and authenticator totals |
+| Plugin | Opens ArKey, pre-fills 2FA setup, and handles `otpauth://` links |
 
 ## Features
 
-- Google, GitHub, and email magic-link sign-in through Supabase Auth
+- Supabase Google, GitHub, and email magic-link auth
+- Client-side AES-GCM encryption with PBKDF2 key derivation
 - Encrypted recovery-code vault
-- Encrypted TOTP 2FA authenticator storage
-- Live 6-8 digit TOTP code generation
-- `otpauth://` URI paste and browser-plugin handoff
-- Supabase Row Level Security schema
-- Cloudflare Pages deployment-ready static build
+- Encrypted TOTP 2FA authenticator
+- `otpauth://totp/...` URI import
 - Chrome extension/plugin companion
+- Supabase SQL schema with Row Level Security policies
+- Cloudflare Pages and Vercel deployment notes
 
-## Tech Stack
+## One-Click Deploy
 
-- Vite
-- Tailwind CSS
-- Supabase JS
-- Supabase Auth and Postgres
-- Web Crypto API
-- Chrome Extension Manifest V3
+<p>
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOmHackz%2FArKey&project-name=arkey&repository-name=ArKey&root-directory=ArKey&env=VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,VITE_ENCRYPTION_KEY&envDescription=Supabase%20project%20URL%2C%20anon%20key%2C%20and%20stable%20client-side%20encryption%20key&build-command=npm%20run%20build&output-directory=dist">
+    <img alt="Deploy with Vercel" src="https://vercel.com/button" />
+  </a>
+</p>
 
-## Quick Start
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Create a local env file:
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in:
+Required Vercel environment variables:
 
 ```text
 VITE_SUPABASE_URL
@@ -47,48 +68,64 @@ VITE_SUPABASE_ANON_KEY
 VITE_ENCRYPTION_KEY
 ```
 
-Start development:
+If your GitHub repository is not `OmHackz/ArKey`, update the deploy link above with your own repository URL.
+
+## Clone
 
 ```bash
+git clone https://github.com/OmHackz/ArKey.git
+cd ArKey/ArKey
+npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Build for production:
+Windows PowerShell:
 
-```bash
-npm run build
+```powershell
+git clone https://github.com/OmHackz/ArKey.git
+Set-Location ArKey\ArKey
+npm install
+Copy-Item .env.example .env.local
+npm run dev
 ```
 
-## Environment Variables
+## Environment
 
-See [.env.example](./.env.example).
+Create `.env.local` from [.env.example](./.env.example):
 
-| Variable | Description |
-| --- | --- |
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase public anon key |
-| `VITE_ENCRYPTION_KEY` | Stable client-side encryption passphrase used to derive the AES-GCM key |
+```text
+VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+VITE_ENCRYPTION_KEY=replace-with-a-long-random-32-plus-character-string
+```
 
-Keep `VITE_ENCRYPTION_KEY` stable. Changing it later means previously encrypted vault and authenticator records cannot be decrypted.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | Yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Yes | Supabase public anon key |
+| `VITE_ENCRYPTION_KEY` | Yes | Stable passphrase used to derive the browser encryption key |
+
+Keep `VITE_ENCRYPTION_KEY` stable. Changing it later means existing encrypted vault and authenticator records cannot be decrypted.
 
 ## Database Schema
 
-Run the SQL in [docs/database-schema.sql](./docs/database-schema.sql) from the Supabase SQL Editor.
+Run [docs/database-schema.sql](./docs/database-schema.sql) in the Supabase SQL Editor.
 
-The schema creates:
+It creates:
 
 - `public.users`
 - `public.vault`
 - `public.authenticators`
-- Row Level Security policies for per-user access
-- Indexes for user-scoped reads
-- An `updated_at` trigger for authenticators
+- User-scoped Row Level Security policies
+- Indexes for authenticated reads
+- `updated_at` trigger for authenticator rows
 
 ## OAuth Setup
 
-Full OAuth setup is documented in [docs/oauth-cloudflare-pages.md](./docs/oauth-cloudflare-pages.md).
+Full guide: [docs/oauth-cloudflare-pages.md](./docs/oauth-cloudflare-pages.md)
 
-For `https://arkey.pages.dev`, configure Supabase Auth with:
+Supabase Auth URL settings for the hosted app:
 
 ```text
 Site URL:
@@ -99,15 +136,13 @@ https://arkey.pages.dev/**
 http://localhost:5173/**
 ```
 
-Google and GitHub provider callback URL:
+Provider callback URL for Google and GitHub:
 
 ```text
 https://YOUR_PROJECT_ID.supabase.co/auth/v1/callback
 ```
 
 ## Deploy to Cloudflare Pages
-
-Cloudflare Pages settings:
 
 ```text
 Framework preset: Vite
@@ -117,15 +152,14 @@ Root directory: ArKey
 Node.js version: 20 or newer
 ```
 
-Set these Cloudflare Pages environment variables:
-
-```text
-VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
-VITE_ENCRYPTION_KEY
-```
+Add the same three environment variables from `.env.example` in Cloudflare Pages.
 
 ## Chrome Plugin
+
+<p>
+  <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white" />
+  <img alt="No broad host access" src="https://img.shields.io/badge/Host%20Access-None%20Broad-16A34A?style=flat-square" />
+</p>
 
 The plugin lives in [extension/](./extension).
 
@@ -137,40 +171,47 @@ Load it locally:
 4. Select the `extension` folder.
 5. Open plugin settings if your hosted app URL is not `https://arkey.pages.dev`.
 
-Plugin docs are in [extension/README.md](./extension/README.md).
+Plugin docs: [extension/README.md](./extension/README.md)
 
-## Important Security Notes
+## Scripts
 
-- Secrets are encrypted in the browser before being stored in Supabase.
-- This is a static frontend app, so `VITE_` variables are public at build time.
-- The anon key is expected to be public; RLS policies are what protect user data.
-- Do not commit `.env.local` or production secrets.
-- Use HTTPS in production so Web Crypto, clipboard, and OAuth flows work reliably.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start Vite development server |
+| `npm run build` | Build production static files into `dist/` |
+| `npm run preview` | Preview the production build locally |
 
-## Project Structure
+## Project Map
 
 ```text
 .
-├── authenticator.html
-├── dashboard.html
-├── vault.html
-├── settings.html
-├── docs/
-│   ├── database-schema.sql
-│   └── oauth-cloudflare-pages.md
-├── extension/
-│   ├── manifest.json
-│   ├── popup.html
-│   ├── background.js
-│   └── options.html
-└── src/
-    ├── scripts/
-    │   ├── auth.js
-    │   ├── authenticator.js
-    │   ├── crypto.js
-    │   ├── db.js
-    │   └── totp.js
-    └── styles/
-        └── main.css
+|-- authenticator.html
+|-- dashboard.html
+|-- vault.html
+|-- settings.html
+|-- docs/
+|   |-- database-schema.sql
+|   `-- oauth-cloudflare-pages.md
+|-- extension/
+|   |-- manifest.json
+|   |-- popup.html
+|   |-- background.js
+|   `-- options.html
+`-- src/
+    |-- scripts/
+    |   |-- auth.js
+    |   |-- authenticator.js
+    |   |-- crypto.js
+    |   |-- db.js
+    |   `-- totp.js
+    `-- styles/
+        `-- main.css
 ```
->>>>>>> 202ff18 (👍 Initial Commit)
+
+## Security Notes
+
+- Secrets are encrypted before storage.
+- Supabase anon keys are public by design; Row Level Security protects user rows.
+- Do not commit `.env.local`.
+- Use HTTPS in production for OAuth, clipboard, and Web Crypto behavior.
+- This is a static frontend, so all `VITE_` values are visible in the built client.

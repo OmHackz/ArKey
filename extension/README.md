@@ -1,4 +1,14 @@
-# ArKey Chrome Plugin
+<p align="center">
+  <img src="../public/favicon.svg" width="72" height="72" alt="ArKey logo" />
+</p>
+
+<h1 align="center">ArKey Chrome Plugin</h1>
+
+<p align="center">
+  <img alt="Chrome" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" />
+  <img alt="Storage" src="https://img.shields.io/badge/Storage-Sync-000000?style=for-the-badge" />
+  <img alt="Permissions" src="https://img.shields.io/badge/Permissions-Minimal-16A34A?style=for-the-badge" />
+</p>
 
 This is the Manifest V3 browser plugin for ArKey. It opens your hosted ArKey app, jumps straight to the 2FA authenticator, and can prefill authenticator setup from the current tab or selected `otpauth://` text.
 
