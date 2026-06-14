@@ -2,7 +2,10 @@ const DEFAULT_APP_URL = 'https://arkey.pages.dev';
 
 const openAppButton = document.getElementById('open-app');
 const openAuthenticatorButton = document.getElementById('open-authenticator');
+const openVaultButton = document.getElementById('open-vault');
+const openPasteButton = document.getElementById('open-paste');
 const addCurrentSiteButton = document.getElementById('add-current-site');
+const authorizeAppButton = document.getElementById('authorize-app');
 const openOptionsButton = document.getElementById('open-options');
 const currentSiteText = document.getElementById('current-site');
 const appUrlText = document.getElementById('app-url');
@@ -39,6 +42,14 @@ openAuthenticatorButton.addEventListener('click', () => {
   openUrl(`${appUrl}/authenticator.html`);
 });
 
+openVaultButton.addEventListener('click', () => {
+  openUrl(`${appUrl}/vault.html`);
+});
+
+openPasteButton.addEventListener('click', () => {
+  openUrl(`${appUrl}/paste.html`);
+});
+
 addCurrentSiteButton.addEventListener('click', () => {
   const params = new URLSearchParams();
 
@@ -56,6 +67,10 @@ addCurrentSiteButton.addEventListener('click', () => {
   }
 
   openUrl(`${appUrl}/authenticator.html?${params.toString()}`);
+});
+
+authorizeAppButton.addEventListener('click', () => {
+  openUrl(`${appUrl}/login.html`);
 });
 
 otpAuthForm.addEventListener('submit', (event) => {

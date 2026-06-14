@@ -1,7 +1,8 @@
 import { initPage } from './sidebar.js';
-import { getAuthenticatorEntries, addAuthenticatorEntry, deleteAuthenticatorEntry } from './db.js';
+import { getAuthenticatorEntries, addAuthenticatorEntry, deleteAuthenticatorEntry, createShareLink } from './db.js';
 import { copyToClipboard, showToast, showConfirm, showEmptyState, showErrorState, escapeHtml, setButtonLoading, formatRelativeTime } from './ui.js';
 import { generateTotp, getTotpProgress, isValidBase32Secret, normalizeSecret, parseOtpAuthUri } from './totp.js';
+import { buildShareUrl, downloadText, getExpiryFromHours, hashPassword, normalizeMaxViews } from './share-utils.js';
 
 let allEntries = [];
 let renderTimer = null;
@@ -23,6 +24,17 @@ function setupEventListeners() {
   document.getElementById('authenticator-form')?.addEventListener('submit', handleAddEntry);
   document.getElementById('authenticator-search')?.addEventListener('input', handleSearch);
   document.getElementById('otpauth-uri')?.addEventListener('input', handleOtpAuthPaste);
+  document.getElementById('authenticator-import-btn')?.addEventListener('click', () => document.getElementById('authenticator-import-file')?.click());
+  document.getElementById('authenticator-import-file')?.addEventListener('change', handleImportFiles);
+  document.getElementById('authenticator-export-btn')?.addEventListener('click', handleExport);
+  document.getElementById('authenticator-share-btn')?.addEventListener('click', openShareModal);
+  document.getElementById('close-authenticator-share-modal')?.addEventListener('click', closeShareModal);
+  document.getElementById('cancel-authenticator-share')?.addEventListener('click', closeShareModal);
+  document.getElementById('create-authenticator-share')?.addEventListener('click', handleCreateShare);
+  document.getElementById('qr-file-btn')?.addEventListener('click', () => document.getElementById('qr-image-file')?.click());
+  document.getElementById('qr-image-file')?.addEventListener('change', handleQrFile);
+  setupQrDropZone();
+  document.addEventListener('paste', handlePasteImage);
 
   document.getElementById('authenticator-modal')?.addEventListener('click', (event) => {
     if (event.target === document.getElementById('authenticator-modal')) closeModal();
@@ -91,6 +103,18 @@ function handleOtpAuthPaste(event) {
   } catch {
     // Let form submission show the validation error.
   }
+}
+
+function applyOtpAuthUri(value) {
+  const parsed = parseOtpAuthUri(value);
+  openModal();
+  document.getElementById('otpauth-uri').value = value;
+  document.getElementById('authenticator-issuer').value = parsed.issuer;
+  document.getElementById('authenticator-account').value = parsed.accountName;
+  document.getElementById('authenticator-secret').value = parsed.secret;
+  document.getElementById('authenticator-digits').value = parsed.digits;
+  document.getElementById('authenticator-period').value = parsed.period;
+  document.getElementById('authenticator-algorithm').value = parsed.algorithm;
 }
 
 async function handleAddEntry(event) {
@@ -295,6 +319,173 @@ function handleDelete(event) {
 
 function groupCode(code) {
   return code.replace(/(.{3})/g, '$1 ').trim();
+}
+
+async function handleImportFiles(event) {
+  await importFiles([...event.target.files]);
+  event.target.value = '';
+}
+
+async function importFiles(files) {
+  if (!files.length) return;
+  let created = 0;
+
+  for (const file of files) {
+    const text = await file.text();
+    const entries = parseAuthenticatorImport(text);
+    for (const entry of entries) {
+      const { error } = await addAuthenticatorEntry(entry);
+      if (!error) created += 1;
+    }
+  }
+
+  showToast(`Imported ${created} ${created === 1 ? 'authenticator' : 'authenticators'}`);
+  await loadEntries();
+}
+
+function parseAuthenticatorImport(text) {
+  try {
+    const parsed = JSON.parse(text);
+    const items = Array.isArray(parsed) ? parsed : parsed.authenticators || parsed.entries || [];
+    return items.map((item) => ({
+      issuer: item.issuer || 'Authenticator',
+      accountName: item.accountName || item.account_name || item.account || 'Account',
+      secret: normalizeSecret(item.secret || item.encrypted_secret || ''),
+      digits: Number(item.digits || 6),
+      period: Number(item.period || 30),
+      algorithm: item.algorithm || 'SHA-1',
+    })).filter((item) => isValidBase32Secret(item.secret));
+  } catch {
+    return text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return parseOtpAuthUri(line);
+        } catch {
+          return { issuer: 'Imported', accountName: 'Account', secret: normalizeSecret(line), digits: 6, period: 30, algorithm: 'SHA-1' };
+        }
+      })
+      .filter((item) => isValidBase32Secret(item.secret));
+  }
+}
+
+function handleExport() {
+  if (!allEntries.length) {
+    showToast('Nothing to export yet', 'warning');
+    return;
+  }
+  downloadText(`arkey-authenticators-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(buildAuthenticatorExport(), null, 2), 'application/json');
+}
+
+function buildAuthenticatorExport() {
+  return {
+    type: 'arkey-authenticator-export',
+    exportedAt: new Date().toISOString(),
+    authenticators: allEntries.map((entry) => ({
+      issuer: entry.issuer,
+      accountName: entry.account_name,
+      secret: entry.secret,
+      digits: Number(entry.digits) || 6,
+      period: Number(entry.period) || 30,
+      algorithm: entry.algorithm || 'SHA-1',
+      createdAt: entry.created_at,
+    })),
+  };
+}
+
+function openShareModal() {
+  if (!allEntries.length) {
+    showToast('Add an authenticator before creating a share link', 'warning');
+    return;
+  }
+  document.getElementById('authenticator-share-modal')?.classList.remove('hidden');
+}
+
+function closeShareModal() {
+  document.getElementById('authenticator-share-modal')?.classList.add('hidden');
+}
+
+async function handleCreateShare() {
+  const button = document.getElementById('create-authenticator-share');
+  setButtonLoading(button, true);
+  const { data, error } = await createShareLink({
+    kind: 'authenticator',
+    title: 'Authenticator export',
+    payload: buildAuthenticatorExport(),
+    passwordHash: await hashPassword(document.getElementById('authenticator-share-password')?.value),
+    maxViews: normalizeMaxViews(document.getElementById('authenticator-share-max-views')?.value),
+    expiresAt: getExpiryFromHours(document.getElementById('authenticator-share-duration')?.value),
+    format: 'json',
+  });
+
+  setButtonLoading(button, false);
+  if (error) {
+    showToast(error.message || 'Failed to create share link', 'error');
+    return;
+  }
+
+  const url = buildShareUrl(`/share/${data.id}`);
+  await copyToClipboard(url);
+  closeShareModal();
+  showToast('Share link copied');
+}
+
+function setupQrDropZone() {
+  const zone = document.getElementById('qr-drop-zone');
+  if (!zone) return;
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.add('border-primary', 'bg-white');
+    });
+  });
+  ['dragleave', 'drop'].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.remove('border-primary', 'bg-white');
+    });
+  });
+  zone.addEventListener('drop', (event) => {
+    const file = [...event.dataTransfer.files].find((item) => item.type.startsWith('image/'));
+    if (file) decodeQrImage(file);
+  });
+}
+
+function handleQrFile(event) {
+  const file = event.target.files?.[0];
+  if (file) decodeQrImage(file);
+  event.target.value = '';
+}
+
+function handlePasteImage(event) {
+  const imageItem = [...(event.clipboardData?.items || [])].find((item) => item.type.startsWith('image/'));
+  if (!imageItem) return;
+  const file = imageItem.getAsFile();
+  if (file) decodeQrImage(file);
+}
+
+async function decodeQrImage(file) {
+  if (!('BarcodeDetector' in window)) {
+    showToast('QR screenshot paste is not supported in this browser. Paste the otpauth URI instead.', 'warning', 5000);
+    return;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+    const codes = await detector.detect(bitmap);
+    const value = codes.find((code) => code.rawValue?.startsWith('otpauth://'))?.rawValue;
+    if (!value) {
+      showToast('No otpauth QR code found in that image', 'warning');
+      return;
+    }
+    applyOtpAuthUri(value);
+    showToast('QR code decoded');
+  } catch (error) {
+    showToast(error.message || 'Could not decode QR image', 'error');
+  }
 }
 
 window.addEventListener('beforeunload', () => {

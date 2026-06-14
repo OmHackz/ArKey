@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ArKey Paste - Share snippets with raw, embed, render, clone, and download views" />
+    <title>Paste - ArKey</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="ml-64 min-h-screen">
+      <div class="max-w-6xl mx-auto px-8 py-8">
+        <header class="flex items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 class="text-2xl font-semibold tracking-tight mb-1">Paste</h1>
+            <p class="text-sm text-muted">Host snippets, markdown, HTML, and small text files</p>
+          </div>
+          <button id="new-paste-btn" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span class="ml-2">New Paste</span>
+          </button>
+        </header>
+
+        <section id="paste-editor" class="grid lg:grid-cols-[1fr_320px] gap-5 mb-8">
+          <div class="card p-5">
+            <div id="paste-drop-zone" class="border border-dashed border-neutral-300 p-4 mb-4 bg-neutral-50">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-sm font-semibold text-primary">Drop a text file, paste content, or write directly</p>
+                  <p class="text-xs text-muted">Markdown and HTML can also be rendered at the public render URL.</p>
+                </div>
+                <input id="paste-file" type="file" class="hidden" accept=".txt,.md,.markdown,.html,.htm,.json,.csv,text/*" />
+                <button id="paste-file-btn" type="button" class="btn-outline btn-sm">Upload</button>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-primary mb-1.5">Title</label>
+                <input id="paste-title" class="input" placeholder="deploy-notes.md" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-primary mb-1.5">Type</label>
+                <select id="paste-type" class="input">
+                  <option value="text">Text</option>
+                  <option value="markdown">Markdown</option>
+                  <option value="html">HTML</option>
+                  <option value="json">JSON</option>
+                </select>
+              </div>
+            </div>
+
+            <textarea id="paste-content" class="input font-mono resize-y min-h-[360px]" placeholder="Paste your snippet here..."></textarea>
+          </div>
+
+          <aside class="card p-5 h-fit">
+            <h2 class="text-base font-semibold mb-4">Hosting options</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-primary mb-1.5">Password</label>
+                <input id="paste-password" type="password" class="input" placeholder="Optional" autocomplete="new-password" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-medium text-primary mb-1.5">Uses</label>
+                  <input id="paste-max-views" type="number" min="0" class="input" placeholder="Unlimited" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-primary mb-1.5">Duration</label>
+                  <select id="paste-duration" class="input">
+                    <option value="0">Never</option>
+                    <option value="1">1 hour</option>
+                    <option value="24">1 day</option>
+                    <option value="168">7 days</option>
+                    <option value="720">30 days</option>
+                  </select>
+                </div>
+              </div>
+              <div class="pt-2 flex items-center justify-end gap-3">
+                <button id="paste-preview-btn" type="button" class="btn-outline btn-sm">Preview</button>
+                <button id="save-paste-btn" type="button" class="btn-primary btn-sm">Host Paste</button>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section id="paste-view" class="hidden"></section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/scripts/paste.js"></script>
+  </body>
+</html>

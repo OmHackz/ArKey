@@ -18,13 +18,30 @@
             <h1 class="text-2xl font-semibold tracking-tight mb-1">Authenticator</h1>
             <p class="text-sm text-muted">Generate encrypted TOTP 2FA codes</p>
           </div>
-          <button id="add-authenticator-btn" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <span class="ml-2">Add 2FA</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <input id="authenticator-import-file" type="file" class="hidden" accept=".json,.txt,text/*" multiple />
+            <button id="authenticator-import-btn" class="btn-outline btn-sm">Import</button>
+            <button id="authenticator-export-btn" class="btn-outline btn-sm">Export</button>
+            <button id="authenticator-share-btn" class="btn-outline btn-sm">Share</button>
+            <button id="add-authenticator-btn" class="btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span class="ml-2">Add 2FA</span>
+            </button>
+          </div>
         </header>
+
+        <div id="qr-drop-zone" class="border border-dashed border-neutral-300 bg-neutral-50 p-4 mb-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-primary">Paste or drop a 2FA QR screenshot</p>
+              <p class="text-xs text-muted">Use your screenshot tool, copy the QR image, then paste here to fill a new authenticator.</p>
+            </div>
+            <button id="qr-file-btn" class="btn-outline btn-sm">Choose Image</button>
+            <input id="qr-image-file" type="file" class="hidden" accept="image/*" />
+          </div>
+        </div>
 
         <div class="flex items-center gap-3 mb-6">
           <div class="flex-1 relative">
@@ -58,7 +75,7 @@
           <div>
             <label class="block text-sm font-medium text-primary mb-1.5">otpauth URI</label>
             <textarea id="otpauth-uri" class="input resize-none" rows="3" placeholder="otpauth://totp/GitHub:you@example.com?secret=..." autocomplete="off"></textarea>
-            <p class="text-xs text-muted mt-1">Paste a setup URI to fill the fields below automatically</p>
+            <p class="text-xs text-muted mt-1">Paste a setup URI or paste/drop a QR screenshot to fill the fields below automatically</p>
           </div>
 
           <div class="grid md:grid-cols-2 gap-3">
@@ -102,6 +119,45 @@
             <button type="submit" id="save-authenticator" class="btn-primary btn-sm">Save Authenticator</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="authenticator-share-modal" class="modal-overlay hidden">
+      <div class="modal-content p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold">Share Authenticators</h2>
+          <button id="close-authenticator-share-modal" class="text-muted hover:text-primary transition-colors" title="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-primary mb-1.5">Password</label>
+            <input id="authenticator-share-password" type="password" class="input" placeholder="Optional" autocomplete="new-password" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Uses</label>
+              <input id="authenticator-share-max-views" type="number" min="0" class="input" placeholder="Unlimited" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Duration</label>
+              <select id="authenticator-share-duration" class="input">
+                <option value="0">Never</option>
+                <option value="1">1 hour</option>
+                <option value="24">1 day</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button id="cancel-authenticator-share" class="btn-outline btn-sm">Cancel</button>
+            <button id="create-authenticator-share" class="btn-primary btn-sm">Create Link</button>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -145,7 +145,7 @@ export async function getVaultEntry(id) {
  * Add a new vault entry.
  * Encrypts the data before storing.
  */
-export async function addVaultEntry(title, code) {
+export async function addVaultEntry(title, code, options = {}) {
   const supabase = getSupabase();
   if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
 
@@ -159,6 +159,8 @@ export async function addVaultEntry(title, code) {
         {
           user_id: userId,
           title,
+          account_name: options.accountName || null,
+          group_name: options.groupName || 'General',
           encrypted_data: encryptedData,
           created_at: new Date().toISOString(),
         },
@@ -175,7 +177,7 @@ export async function addVaultEntry(title, code) {
 /**
  * Update a vault entry.
  */
-export async function updateVaultEntry(id, title, code) {
+export async function updateVaultEntry(id, title, code, options = {}) {
   const supabase = getSupabase();
   if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
 
@@ -187,6 +189,8 @@ export async function updateVaultEntry(id, title, code) {
       .from('vault')
       .update({
         title,
+        account_name: options.accountName || null,
+        group_name: options.groupName || 'General',
         encrypted_data: encryptedData,
       })
       .eq('id', id)
@@ -376,6 +380,128 @@ export async function getVaultStats() {
       },
       error: null,
     };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function createShareLink({ kind, title, payload, passwordHash = null, maxViews = null, expiresAt = null, format = 'json' }) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const userId = await getUserId();
+    const { data, error } = await supabase
+      .from('share_links')
+      .insert([{
+        user_id: userId,
+        kind,
+        title,
+        payload,
+        password_hash: passwordHash,
+        max_views: maxViews,
+        view_count: 0,
+        expires_at: expiresAt,
+        format,
+        created_at: new Date().toISOString(),
+      }])
+      .select()
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function getShareLink(id) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const { data, error } = await supabase
+      .from('share_links')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function incrementShareView(id, currentCount = 0) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const { data, error } = await supabase.rpc('increment_share_view', {
+      share_id: id,
+    });
+
+    return { data: data || { view_count: currentCount + 1 }, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function createPaste({ title, content, contentType, passwordHash = null, maxViews = null, expiresAt = null }) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const userId = await getUserId();
+    const { data, error } = await supabase
+      .from('pastes')
+      .insert([{
+        user_id: userId,
+        title,
+        content,
+        content_type: contentType,
+        password_hash: passwordHash,
+        max_views: maxViews,
+        view_count: 0,
+        expires_at: expiresAt,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }])
+      .select()
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function getPaste(id) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const { data, error } = await supabase
+      .from('pastes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
+
+export async function incrementPasteView(id, currentCount = 0) {
+  const supabase = getSupabase();
+  if (!supabase) return { data: null, error: new Error('Supabase not initialized') };
+
+  try {
+    const { data, error } = await supabase.rpc('increment_paste_view', {
+      paste_id: id,
+    });
+
+    return { data: data || { view_count: currentCount + 1 }, error };
   } catch (err) {
     return { data: null, error: err };
   }

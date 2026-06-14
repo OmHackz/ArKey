@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/paste/:path*", "destination": "/paste.html" },
+    { "source": "/share/:path*", "destination": "/share.html" }
+  ]
+}

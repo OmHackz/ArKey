@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ArKey",
-  "description": "Open ArKey and add 2FA authenticator entries for the current site.",
+  "description": "Open ArKey, manage TOTP setup, vault shortcuts, paste links, and app authorization.",
   "version": "1.0.0",
   "action": {
     "default_title": "ArKey",

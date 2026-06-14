@@ -5,10 +5,12 @@
  */
 
 import { initPage } from './sidebar.js';
-import { getVaultEntries, addVaultEntry, deleteVaultEntry } from './db.js';
+import { getVaultEntries, addVaultEntry, deleteVaultEntry, createShareLink } from './db.js';
 import { copyToClipboard, showToast, showConfirm, showEmptyState, showErrorState, escapeHtml, setButtonLoading, formatRelativeTime } from './ui.js';
+import { buildShareUrl, downloadText, getExpiryFromHours, hashPassword, normalizeMaxViews } from './share-utils.js';
 
 let allEntries = [];
+let selectedGroup = '';
 
 async function init() {
   const ready = await initPage('vault');
@@ -38,6 +40,16 @@ function setupEventListeners() {
 
   // Search
   document.getElementById('search-input')?.addEventListener('input', handleSearch);
+  document.getElementById('group-filter')?.addEventListener('change', handleGroupFilter);
+  document.getElementById('vault-export-btn')?.addEventListener('click', handleExport);
+  document.getElementById('vault-import-btn')?.addEventListener('click', () => document.getElementById('vault-import-file')?.click());
+  document.getElementById('vault-drop-upload-btn')?.addEventListener('click', () => document.getElementById('vault-import-file')?.click());
+  document.getElementById('vault-import-file')?.addEventListener('change', handleImportFiles);
+  document.getElementById('vault-share-btn')?.addEventListener('click', openShareModal);
+  document.getElementById('close-share-modal')?.addEventListener('click', closeShareModal);
+  document.getElementById('cancel-share')?.addEventListener('click', closeShareModal);
+  document.getElementById('create-share')?.addEventListener('click', handleCreateShare);
+  setupDropZone();
 
   // Escape key closes modal
   document.addEventListener('keydown', (e) => {
@@ -49,6 +61,8 @@ function openAddModal() {
   const modal = document.getElementById('add-modal');
   modal.classList.remove('hidden');
   document.getElementById('entry-title').value = '';
+  document.getElementById('entry-account').value = '';
+  document.getElementById('entry-group').value = selectedGroup || '';
   document.getElementById('entry-code').value = '';
   document.getElementById('entry-title').focus();
 }
@@ -63,10 +77,14 @@ async function handleAddEntry(e) {
 
   const titleInput = document.getElementById('entry-title');
   const codeInput = document.getElementById('entry-code');
+  const accountInput = document.getElementById('entry-account');
+  const groupInput = document.getElementById('entry-group');
   const saveBtn = document.getElementById('save-entry');
 
   const title = titleInput.value.trim();
   const code = codeInput.value.trim();
+  const accountName = accountInput.value.trim();
+  const groupName = groupInput.value.trim() || 'General';
 
   if (!title || !code) {
     showToast('Please fill in all fields', 'warning');
@@ -75,7 +93,7 @@ async function handleAddEntry(e) {
 
   setButtonLoading(saveBtn, true);
 
-  const { data, error } = await addVaultEntry(title, code);
+  const { data, error } = await addVaultEntry(title, code, { accountName, groupName });
 
   if (error) {
     showToast(error.message || 'Failed to add entry', 'error');
@@ -90,11 +108,22 @@ async function handleAddEntry(e) {
 }
 
 function handleSearch(e) {
-  const query = e.target.value.toLowerCase().trim();
-  const filtered = allEntries.filter(entry =>
-    entry.title.toLowerCase().includes(query)
-  );
-  renderEntries(filtered);
+  renderEntries(filterEntries(e.target.value, selectedGroup));
+}
+
+function handleGroupFilter(e) {
+  selectedGroup = e.target.value;
+  renderEntries(filterEntries(document.getElementById('search-input')?.value || '', selectedGroup));
+}
+
+function filterEntries(queryValue = '', groupValue = '') {
+  const query = queryValue.toLowerCase().trim();
+  return allEntries.filter(entry => {
+    const haystack = `${entry.title} ${entry.account_name || ''} ${entry.group_name || 'General'}`.toLowerCase();
+    const matchesQuery = !query || haystack.includes(query);
+    const matchesGroup = !groupValue || (entry.group_name || 'General') === groupValue;
+    return matchesQuery && matchesGroup;
+  });
 }
 
 async function loadEntries() {
@@ -116,6 +145,7 @@ async function loadEntries() {
   }
 
   allEntries = data || [];
+  updateGroupControls();
 
   if (allEntries.length === 0) {
     showEmptyState(
@@ -147,7 +177,14 @@ function renderEntries(entries) {
     return;
   }
 
-  container.innerHTML = entries.map((entry, i) => {
+  const groupedEntries = groupEntries(entries);
+  container.innerHTML = Object.entries(groupedEntries).map(([group, groupEntriesList]) => `
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-primary">${escapeHtml(group)}</h2>
+        <span class="text-xs text-muted">${groupEntriesList.length} ${groupEntriesList.length === 1 ? 'item' : 'items'}</span>
+      </div>
+      ${groupEntriesList.map((entry, i) => {
     const isHidden = entry.code_hidden !== false;
     const maskedCode = maskCode(entry.decrypted_data || '');
     return `
@@ -161,7 +198,7 @@ function renderEntries(entries) {
             </div>
             <div>
               <h3 class="text-sm font-semibold text-primary">${escapeHtml(entry.title)}</h3>
-              <p class="text-xs text-muted">Added ${formatRelativeTime(entry.created_at)}</p>
+              <p class="text-xs text-muted">${escapeHtml(entry.account_name || 'No account')} / Added ${formatRelativeTime(entry.created_at)}</p>
             </div>
           </div>
           <div class="flex items-center gap-1">
@@ -200,7 +237,9 @@ function renderEntries(entries) {
         </div>
       </div>
     `;
-  }).join('');
+      }).join('')}
+    </section>
+  `).join('');
 
   // Wire up toggle visibility buttons
   container.querySelectorAll('.toggle-visibility-btn').forEach(btn => {
@@ -216,6 +255,30 @@ function renderEntries(entries) {
   container.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', handleDelete);
   });
+}
+
+function updateGroupControls() {
+  const groups = [...new Set(allEntries.map((entry) => entry.group_name || 'General'))].sort();
+  const filter = document.getElementById('group-filter');
+  const datalist = document.getElementById('vault-groups');
+  if (filter) {
+    const current = filter.value;
+    filter.innerHTML = '<option value="">All groups</option>' + groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('');
+    filter.value = groups.includes(current) ? current : '';
+    selectedGroup = filter.value;
+  }
+  if (datalist) {
+    datalist.innerHTML = groups.map((group) => `<option value="${escapeHtml(group)}"></option>`).join('');
+  }
+}
+
+function groupEntries(entries) {
+  return entries.reduce((groups, entry) => {
+    const group = entry.group_name || 'General';
+    groups[group] ||= [];
+    groups[group].push(entry);
+    return groups;
+  }, {});
 }
 
 function handleToggleVisibility(e) {
@@ -282,6 +345,134 @@ function handleDelete(e) {
 function maskCode(code) {
   if (!code || code.length <= 8) return '*'.repeat(code?.length || 0);
   return '*'.repeat(code.length - 4) + code.slice(-4);
+}
+
+function setupDropZone() {
+  const zone = document.getElementById('vault-drop-zone');
+  if (!zone) return;
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.add('border-primary', 'bg-white');
+    });
+  });
+  ['dragleave', 'drop'].forEach((eventName) => {
+    zone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      zone.classList.remove('border-primary', 'bg-white');
+    });
+  });
+  zone.addEventListener('drop', (event) => importFiles([...event.dataTransfer.files]));
+}
+
+function handleImportFiles(event) {
+  importFiles([...event.target.files]);
+  event.target.value = '';
+}
+
+async function importFiles(files) {
+  if (!files.length) return;
+  let created = 0;
+
+  for (const file of files) {
+    const text = await file.text();
+    const entries = parseVaultImport(text, file.name);
+    for (const entry of entries) {
+      const { error } = await addVaultEntry(entry.title, entry.code, {
+        accountName: entry.accountName || '',
+        groupName: entry.groupName || 'Imported',
+      });
+      if (!error) created += 1;
+    }
+  }
+
+  showToast(`Imported ${created} ${created === 1 ? 'entry' : 'entries'}`);
+  await loadEntries();
+}
+
+function parseVaultImport(text, filename) {
+  try {
+    const parsed = JSON.parse(text);
+    const items = Array.isArray(parsed) ? parsed : parsed.vault || parsed.entries || [];
+    return items.map((item, index) => ({
+      title: item.title || item.name || `${filename} #${index + 1}`,
+      code: item.code || item.recovery_code || item.decrypted_data || '',
+      accountName: item.accountName || item.account_name || '',
+      groupName: item.groupName || item.group_name || 'Imported',
+    })).filter((item) => item.code);
+  } catch {
+    return text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line, index) => ({
+        title: `${filename.replace(/\.[^.]+$/, '')} #${index + 1}`,
+        code: line,
+        groupName: 'Imported',
+      }));
+  }
+}
+
+function handleExport() {
+  if (!allEntries.length) {
+    showToast('Nothing to export yet', 'warning');
+    return;
+  }
+
+  const payload = buildVaultExport();
+  downloadText(`arkey-vault-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2), 'application/json');
+}
+
+function buildVaultExport() {
+  return {
+    type: 'arkey-vault-export',
+    exportedAt: new Date().toISOString(),
+    vault: allEntries.map((entry) => ({
+      title: entry.title,
+      accountName: entry.account_name || '',
+      groupName: entry.group_name || 'General',
+      code: entry.decrypted_data || '',
+      createdAt: entry.created_at,
+    })),
+  };
+}
+
+function openShareModal() {
+  if (!allEntries.length) {
+    showToast('Add something before creating a share link', 'warning');
+    return;
+  }
+  document.getElementById('share-modal')?.classList.remove('hidden');
+}
+
+function closeShareModal() {
+  document.getElementById('share-modal')?.classList.add('hidden');
+}
+
+async function handleCreateShare() {
+  const button = document.getElementById('create-share');
+  setButtonLoading(button, true);
+  const payload = buildVaultExport();
+  const { data, error } = await createShareLink({
+    kind: 'vault',
+    title: 'Vault export',
+    payload,
+    passwordHash: await hashPassword(document.getElementById('share-password')?.value),
+    maxViews: normalizeMaxViews(document.getElementById('share-max-views')?.value),
+    expiresAt: getExpiryFromHours(document.getElementById('share-duration')?.value),
+    format: 'json',
+  });
+
+  setButtonLoading(button, false);
+  if (error) {
+    showToast(error.message || 'Failed to create share link', 'error');
+    return;
+  }
+
+  const url = buildShareUrl(`/share/${data.id}`);
+  await copyToClipboard(url);
+  closeShareModal();
+  showToast('Share link copied');
 }
 
 init();

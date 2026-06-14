@@ -36,10 +36,11 @@ ArKey is a static Vite app that signs users in with Supabase Auth, encrypts sens
 
 | Area | What it does |
 | --- | --- |
-| Vault | Stores encrypted recovery codes |
-| Authenticator | Stores encrypted TOTP secrets and generates live 2FA codes |
+| Vault | Stores encrypted recovery codes with groups, account names, import/export, and share links |
+| Authenticator | Stores encrypted TOTP secrets, generates live 2FA codes, imports otpauth exports, and can decode pasted QR screenshots in supported browsers |
+| Paste | Hosts snippets with raw, embed, render, clone, copy, download, password, duration, and view-limit options |
 | Dashboard | Shows vault and authenticator totals |
-| Plugin | Opens ArKey, pre-fills 2FA setup, and handles `otpauth://` links |
+| Plugin | Opens ArKey, pre-fills 2FA setup, and exposes quick links for TOTP, vault, paste, and authorization |
 
 ## Features
 
@@ -47,7 +48,10 @@ ArKey is a static Vite app that signs users in with Supabase Auth, encrypts sens
 - Client-side AES-GCM encryption with PBKDF2 key derivation
 - Encrypted recovery-code vault
 - Encrypted TOTP 2FA authenticator
+- Vault groups, account names, quick text-file import, JSON export/import, and share packages
 - `otpauth://totp/...` URI import
+- Paste service with `/paste/:id`, `/paste/:id/raw`, `/paste/:id/embed`, and `/paste/:id/render`
+- Share links at `/share/:id` with optional passwords, duration, and use limits
 - Chrome extension/plugin companion
 - Supabase SQL schema with Row Level Security policies
 - Cloudflare Pages and Vercel deployment notes
@@ -117,9 +121,11 @@ It creates:
 - `public.users`
 - `public.vault`
 - `public.authenticators`
+- `public.share_links`
+- `public.pastes`
 - User-scoped Row Level Security policies
 - Indexes for authenticated reads
-- `updated_at` trigger for authenticator rows
+- `updated_at` triggers and narrow RPC helpers for share/paste view counters
 
 ## OAuth Setup
 
@@ -153,6 +159,8 @@ Node.js version: 20 or newer
 ```
 
 Add the same three environment variables from `.env.example` in Cloudflare Pages.
+
+Pretty paste/share URLs are handled by [public/_redirects](./public/_redirects) for Cloudflare Pages and [vercel.json](./vercel.json) for Vercel.
 
 ## Chrome Plugin
 

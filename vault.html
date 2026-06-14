@@ -21,15 +21,31 @@
             <h1 class="text-2xl font-semibold tracking-tight mb-1">Vault</h1>
             <p class="text-sm text-muted">Manage your encrypted recovery codes</p>
           </div>
-          <button id="add-btn" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <span class="ml-2">Add Entry</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <input id="vault-import-file" type="file" class="hidden" accept=".json,.txt,.csv,text/*" multiple />
+            <button id="vault-import-btn" class="btn-outline btn-sm">Import</button>
+            <button id="vault-export-btn" class="btn-outline btn-sm">Export</button>
+            <button id="vault-share-btn" class="btn-outline btn-sm">Share</button>
+            <button id="add-btn" class="btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span class="ml-2">Add Entry</span>
+            </button>
+          </div>
         </header>
 
         <!-- Search & Filter -->
+        <div id="vault-drop-zone" class="border border-dashed border-neutral-300 bg-neutral-50 p-4 mb-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-primary">Quick upload recovery files</p>
+              <p class="text-xs text-muted">Drop .txt, .csv, or ArKey JSON exports here to import recovery codes.</p>
+            </div>
+            <button id="vault-drop-upload-btn" class="btn-outline btn-sm">Choose Files</button>
+          </div>
+        </div>
+
         <div class="flex items-center gap-3 mb-6">
           <div class="flex-1 relative">
             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -42,6 +58,9 @@
               placeholder="Search recovery codes..."
             />
           </div>
+          <select id="group-filter" class="input max-w-48">
+            <option value="">All groups</option>
+          </select>
         </div>
 
         <!-- Vault Entries -->
@@ -81,6 +100,29 @@
             <p class="text-xs text-muted mt-1">A descriptive name to identify this recovery code</p>
           </div>
 
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Account Name</label>
+              <input
+                type="text"
+                id="entry-account"
+                class="input"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Group</label>
+              <input
+                type="text"
+                id="entry-group"
+                class="input"
+                placeholder="Personal, Work, Cloud"
+                list="vault-groups"
+              />
+              <datalist id="vault-groups"></datalist>
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-primary mb-1.5">Recovery Code</label>
             <textarea
@@ -100,6 +142,45 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="share-modal" class="modal-overlay hidden">
+      <div class="modal-content p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold">Share Vault Export</h2>
+          <button id="close-share-modal" class="text-muted hover:text-primary transition-colors" title="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-primary mb-1.5">Password</label>
+            <input id="share-password" type="password" class="input" placeholder="Optional" autocomplete="new-password" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Uses</label>
+              <input id="share-max-views" type="number" min="0" class="input" placeholder="Unlimited" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-primary mb-1.5">Duration</label>
+              <select id="share-duration" class="input">
+                <option value="0">Never</option>
+                <option value="1">1 hour</option>
+                <option value="24">1 day</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button id="cancel-share" class="btn-outline btn-sm">Cancel</button>
+            <button id="create-share" class="btn-primary btn-sm">Create Link</button>
+          </div>
+        </div>
       </div>
     </div>
 
