@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ArKey Dashboard - Your secure vault overview" />
+    <title>Dashboard - ArKey</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 min-h-screen">
+      <div class="max-w-5xl mx-auto px-8 py-8">
+        <!-- Header -->
+        <header class="mb-10">
+          <h1 class="text-2xl font-semibold tracking-tight mb-1">Dashboard</h1>
+          <p class="text-sm text-muted">Overview of your secure vault</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-4 gap-4 mb-10" id="stats-container">
+          <div class="stat-card animate-fade-in">
+            <p class="stat-label">Total Stored Keys</p>
+            <p class="stat-value" id="stat-total">-</p>
+            <div class="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+              </svg>
+              Recovery codes in vault
+            </div>
+          </div>
+          <div class="stat-card animate-fade-in" style="animation-delay: 0.03s">
+            <p class="stat-label">2FA Authenticators</p>
+            <p class="stat-value" id="stat-authenticators">-</p>
+            <div class="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+              </svg>
+              TOTP codes ready
+            </div>
+          </div>
+          <div class="stat-card animate-fade-in" style="animation-delay: 0.05s">
+            <p class="stat-label">Last Updated</p>
+            <p class="stat-value text-lg pt-1.5" id="stat-updated">-</p>
+            <div class="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              Most recent entry
+            </div>
+          </div>
+          <div class="stat-card animate-fade-in" style="animation-delay: 0.1s">
+            <p class="stat-label">Security Status</p>
+            <p class="stat-value text-lg pt-1.5 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 bg-green-500 inline-block"></span>
+              Active
+            </p>
+            <div class="mt-3 flex items-center gap-1.5 text-xs text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Encryption enabled
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="mb-10">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Quick Actions</h2>
+          <div class="grid md:grid-cols-3 gap-4">
+            <a href="/vault.html" class="card card-hover p-6 flex items-center gap-4 group">
+              <div class="w-12 h-12 bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-neutral-200 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold mb-0.5">Manage Vault</h3>
+                <p class="text-sm text-muted">Add, view, or delete recovery codes</p>
+              </div>
+              <svg class="ml-auto text-neutral-300 group-hover:text-primary transition-colors" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a href="/authenticator.html" class="card card-hover p-6 flex items-center gap-4 group">
+              <div class="w-12 h-12 bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-neutral-200 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M8 6h8"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold mb-0.5">2FA Authenticator</h3>
+                <p class="text-sm text-muted">Generate TOTP login codes</p>
+              </div>
+              <svg class="ml-auto text-neutral-300 group-hover:text-primary transition-colors" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a href="/settings.html" class="card card-hover p-6 flex items-center gap-4 group">
+              <div class="w-12 h-12 bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-neutral-200 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-base font-semibold mb-0.5">Account Settings</h3>
+                <p class="text-sm text-muted">Manage your account and preferences</p>
+              </div>
+              <svg class="ml-auto text-neutral-300 group-hover:text-primary transition-colors" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-muted">Recent Vault Entries</h2>
+            <a href="/vault.html" class="text-sm text-primary hover:underline">View all</a>
+          </div>
+          <div id="recent-entries" class="space-y-2">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/scripts/dashboard.js"></script>
+  </body>
+</html>

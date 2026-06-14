@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "ArKey",
+  "description": "Open ArKey and add 2FA authenticator entries for the current site.",
+  "version": "1.0.0",
+  "action": {
+    "default_title": "ArKey",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "contextMenus", "storage", "tabs"]
+}

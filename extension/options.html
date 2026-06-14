@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArKey Plugin Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header>
+        <div class="mark">A</div>
+        <div>
+          <h1>ArKey Plugin</h1>
+          <p>Connect the browser plugin to your hosted ArKey app.</p>
+        </div>
+      </header>
+
+      <form id="options-form">
+        <label for="app-url">App URL</label>
+        <input id="app-url" type="url" placeholder="https://arkey.pages.dev" required />
+        <p class="hint">Use the origin only, for example https://arkey.pages.dev.</p>
+
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+      </form>
+
+      <p id="status" class="status" role="status"></p>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

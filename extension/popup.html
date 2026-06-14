@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArKey</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <div class="mark">A</div>
+        <div>
+          <h1>ArKey</h1>
+          <p id="current-site">Ready</p>
+        </div>
+      </header>
+
+      <section class="actions">
+        <button id="open-app" type="button">
+          <span>Open App</span>
+        </button>
+        <button id="open-authenticator" type="button">
+          <span>Authenticator</span>
+        </button>
+        <button id="add-current-site" type="button">
+          <span>Add Current Site</span>
+        </button>
+      </section>
+
+      <form id="otpauth-form" class="otpauth">
+        <label for="otpauth-uri">otpauth URI</label>
+        <textarea id="otpauth-uri" rows="4" placeholder="Paste otpauth://totp/..."></textarea>
+        <button type="submit">Open Setup</button>
+      </form>
+
+      <footer class="footer">
+        <button id="open-options" type="button">Plugin settings</button>
+        <span id="app-url">arkey.pages.dev</span>
+      </footer>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

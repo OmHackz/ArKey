@@ -1,0 +1,139 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 340px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.popup {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: #000000;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+p {
+  margin: 3px 0 0;
+  color: #737373;
+  font-size: 12px;
+}
+
+.actions {
+  display: grid;
+  gap: 8px;
+  padding: 14px 0;
+}
+
+button {
+  border: 1px solid #d4d4d4;
+  background: #ffffff;
+  color: #000000;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 38px;
+  padding: 0 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f5f5f5;
+}
+
+.actions button:first-child,
+.otpauth button {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+  text-align: center;
+}
+
+.actions button:first-child:hover,
+.otpauth button:hover {
+  background: #262626;
+}
+
+.otpauth {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #d4d4d4;
+  padding: 10px;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #000000;
+}
+
+.footer {
+  border-top: 1px solid #e5e5e5;
+  margin-top: 14px;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.footer button {
+  border: 0;
+  background: transparent;
+  min-height: auto;
+  padding: 0;
+  color: #000000;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.footer span {
+  color: #737373;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

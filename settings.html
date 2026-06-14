@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ArKey Settings - Account settings" />
+    <title>Settings - ArKey</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 min-h-screen">
+      <div class="max-w-3xl mx-auto px-8 py-8">
+        <!-- Header -->
+        <header class="mb-10">
+          <h1 class="text-2xl font-semibold tracking-tight mb-1">Settings</h1>
+          <p class="text-sm text-muted">Manage your account and preferences</p>
+        </header>
+
+        <!-- Account Section -->
+        <section class="mb-10">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Account</h2>
+          <div class="card">
+            <div class="p-6 border-b border-neutral-100">
+              <div class="flex items-center gap-4">
+                <div id="user-avatar" class="w-14 h-14 bg-secondary border border-neutral-200 flex items-center justify-center text-xl font-semibold text-primary flex-shrink-0">
+                  <!-- Populated by JS -->
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-primary" id="user-email">Loading...</p>
+                  <p class="text-xs text-muted" id="user-provider">Loading...</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="grid gap-4">
+                <div class="flex items-center justify-between py-2">
+                  <div>
+                    <p class="text-sm font-medium text-primary">Authentication Method</p>
+                    <p class="text-xs text-muted">How you sign in to ArKey</p>
+                  </div>
+                  <span class="text-sm text-muted bg-secondary px-3 py-1.5" id="auth-method">-</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                  <div>
+                    <p class="text-sm font-medium text-primary">Account Created</p>
+                    <p class="text-xs text-muted">When you joined ArKey</p>
+                  </div>
+                  <span class="text-sm text-muted" id="account-created">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Security Section -->
+        <section class="mb-10">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Security</h2>
+          <div class="card">
+            <div class="p-6 border-b border-neutral-100">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-primary">Client-Side Encryption</p>
+                  <p class="text-xs text-muted">Your data is encrypted before leaving your device</p>
+                </div>
+                <span class="ml-auto text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1">Active</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="grid gap-4">
+                <div class="flex items-center justify-between py-2">
+                  <div>
+                    <p class="text-sm font-medium text-primary">Encryption Algorithm</p>
+                    <p class="text-xs text-muted">AES-256-GCM with PBKDF2 key derivation</p>
+                  </div>
+                  <span class="text-sm text-muted font-mono bg-secondary px-3 py-1.5">AES-GCM</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                  <div>
+                    <p class="text-sm font-medium text-primary">Key Derivation</p>
+                    <p class="text-xs text-muted">100,000 PBKDF2 iterations</p>
+                  </div>
+                  <span class="text-sm text-muted font-mono bg-secondary px-3 py-1.5">PBKDF2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Preferences Section -->
+        <section class="mb-10">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-4">Preferences</h2>
+          <div class="card">
+            <div class="p-6">
+              <div class="flex items-center justify-between py-2">
+                <div>
+                  <p class="text-sm font-medium text-primary">Theme</p>
+                  <p class="text-xs text-muted">Choose your preferred appearance</p>
+                </div>
+                <select id="theme-select" class="input w-auto text-sm py-2 px-3">
+                  <option value="light">Light</option>
+                  <option value="dark" disabled>Dark (Coming Soon)</option>
+                  <option value="system" disabled>System (Coming Soon)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Danger Zone -->
+        <section>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-red-600 mb-4">Danger Zone</h2>
+          <div class="card border-red-200">
+            <div class="p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-primary">Sign Out</p>
+                  <p class="text-xs text-muted">Sign out of your account on this device</p>
+                </div>
+                <button id="logout-btn-main" class="btn-outline text-red-600 border-red-300 hover:bg-red-50 btn-sm">
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/scripts/settings.js"></script>
+  </body>
+</html>
