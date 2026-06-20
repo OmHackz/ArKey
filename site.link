@@ -1,0 +1,6 @@
+{
+  "url": "https://arkey.pages.dev/",
+  "name": "ArKey",
+  "description": "Store and manage all your account recovery codes in one encrypted vault. Client-side encryption ensures only you can access your data.",
+  "tags": ["authenticator", "secure"]
+}
